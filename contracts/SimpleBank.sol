@@ -36,7 +36,7 @@ contract SimpleBank {
 
     // Create an event called LogWithdrawal
     // Hint: it should take 3 arguments: an accountAddress, withdrawAmount and a newBalance
-    event LogWithdrawal();
+    event LogWithdrawal(address accountAddress, uint withdrawAmount, uint newBalance);
 
     /* Functions
      */
@@ -62,6 +62,7 @@ contract SimpleBank {
     /// @notice Enroll a customer with the bank
     /// @return The users enrolled status
     // Emit the appropriate event
+
     function enroll() public returns (bool){
       // 1. enroll of the sender of this transaction
       enrolled[msg.sender] = true;
@@ -99,10 +100,15 @@ contract SimpleBank {
       // return the user's balance.
 
       // 1. Use a require expression to guard/ensure sender has enough funds
+      require(balances[msg.sender] >= withdrawAmount, "not enough funds to withdraw");
 
       // 2. Transfer Eth to the sender and decrement the withdrawal amount from
       //    sender's balance
+      msg.sender.transfer(withdrawAmount);
+      balances[msg.sender] -= withdrawAmount;
 
       // 3. Emit the appropriate event for this message
+      emit LogWithdrawal(msg.sender, withdrawAmount, balances[msg.sender]);
+      return balances[msg.sender];
     }
 }
