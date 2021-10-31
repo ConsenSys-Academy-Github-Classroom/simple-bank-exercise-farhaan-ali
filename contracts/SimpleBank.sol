@@ -14,7 +14,7 @@ contract SimpleBank {
 
     // Fill in the visibility keyword.
     // Hint: We want to protect our users balance from other contracts
-    mapping (address => uint) balances ;
+    mapping (address => uint) internal balances ;
 
     // Fill in the visibility keyword
     // Hint: We want to create a getter function and allow contracts to be able
@@ -32,7 +32,7 @@ contract SimpleBank {
     event LogEnrolled(address accountAddress);
 
     // Add 2 arguments for this event, an accountAddress and an amount
-    event LogDepositMade();
+    event LogDepositMade(address accountAddress, uint amount);
 
     // Create an event called LogWithdrawal
     // Hint: it should take 3 arguments: an accountAddress, withdrawAmount and a newBalance
@@ -56,6 +56,7 @@ contract SimpleBank {
       // 1. A SPECIAL KEYWORD prevents function from editing state variables;
       //    allows function to run locally/off blockchain
       // 2. Get the balance of the sender of this transaction
+      return balances[msg.sender];
     }
 
     /// @notice Enroll a customer with the bank
@@ -70,17 +71,21 @@ contract SimpleBank {
 
     /// @notice Deposit ether into bank
     /// @return The balance of the user after the deposit is made
-    function deposit() public returns (uint) {
+    function deposit() public  payable returns (uint) {
       // 1. Add the appropriate keyword so that this function can receive ether
 
       // 2. Users should be enrolled before they can make deposits
+      require(enrolled[msg.sender] == true, "user not enrolled");
 
       // 3. Add the amount to the user's balance. Hint: the amount can be
-      //    accessed from of the global variable `msg`
+      //    accessed from of the global variable `msg.value`
+      balances[msg.sender] += msg.value;
 
       // 4. Emit the appropriate event associated with this function
+      emit LogDepositMade(msg.sender, msg.value);
 
       // 5. return the balance of sndr of this transaction
+      return balances[msg.sender];
     }
 
     /// @notice Withdraw ether from bank
